@@ -1,23 +1,42 @@
-export default function JobsListItem() {
+/* eslint-disable no-unused-vars */
+
+import { useDispatch } from "react-redux";
+import { removeJob } from "../../features/jobs/jobsSlice";
+
+/* eslint-disable react/prop-types */
+export default function JobsListItem({ job }) {
+  const { title, type, salary, deadline, id } = job;
+
+  let color = "";
+  if (type === "Full Time") {
+    color = "#FF8A00";
+  } else if (type === "Internship") {
+    color = "#FF5757";
+  } else {
+    color = "#56E5C4";
+  }
+
+  const dispatch = useDispatch();
+
+  const handleDelete = () => {
+    dispatch(removeJob(id));
+  };
   return (
     <div className="lws-single-job">
       <div className="flex-1 min-w-0">
-        <h2 className="lws-title">Back End Developer</h2>
+        <h2 className="lws-title">{title}</h2>
         <div className="job-footers">
           <div className="lws-type">
-            {/* Fulltime - #FF8A00,  */}
-            {/* Internship - #FF5757,  */}
-            {/* Remote - #56E5C4,  */}
-            <i className="fa-solid fa-stop !text-[#FF8A00] text-lg mr-1.5" />
-            Full-time
+            <i className={`fa-solid fa-stop !text-[${color}] text-lg mr-1.5`} />
+            {type}
           </div>
           <div className="lws-salary">
             <i className="fa-solid fa-bangladeshi-taka-sign text-slate-400 text-lg mr-1.5" />
-            BDT 40,000
+            BDT {salary}
           </div>
           <div className="lws-deadline">
             <i className="fa-regular fa-calendar text-slate-400 text-lg mr-1.5" />
-            Closing on 2022-12-31
+            Closing on {deadline}
           </div>
         </div>
       </div>
@@ -29,7 +48,11 @@ export default function JobsListItem() {
           </button>
         </span>
         <span className="sm:ml-3">
-          <button type="button" className="lws-delete btn btn-danger">
+          <button
+            onClick={handleDelete}
+            type="button"
+            className="lws-delete btn btn-danger"
+          >
             <i className="fa-solid fa-trash text-gray-300 -ml-1 mr-2" />
             Delete
           </button>
