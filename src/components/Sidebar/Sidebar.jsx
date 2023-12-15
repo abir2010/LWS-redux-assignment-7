@@ -1,9 +1,14 @@
 import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { Link, useLocation } from "react-router-dom";
+import { removeFromEditing } from "../../features/jobs/jobsSlice";
+import { tagJob } from "../../features/filter/filterSlice";
 
 export default function Sidebar() {
   const location = useLocation();
   const [active, setActive] = useState(true);
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (location.pathname === "/form") {
@@ -13,13 +18,19 @@ export default function Sidebar() {
     }
   }, [location.pathname]);
 
+  const handleAvailableJobs = (type) => {
+    setActive(true);
+    dispatch(tagJob(type));
+    dispatch(removeFromEditing());
+  };
+
   return (
     <div className="sidebar">
       <nav>
         <ul className="space-y-4">
           <li>
             <Link
-              onClick={() => setActive(true)}
+              onClick={() => handleAvailableJobs("")}
               to="/"
               className={`main-menu ${active && "menu-active"}`}
               id="lws-alljobs-menu"
@@ -30,7 +41,7 @@ export default function Sidebar() {
             <ul className="space-y-6 lg:space-y-2">
               <li>
                 <Link
-                  onClick={() => setActive(true)}
+                  onClick={() => handleAvailableJobs("Internship")}
                   to="/"
                   className="sub-menu"
                   id="lws-internship-menu"
@@ -40,7 +51,7 @@ export default function Sidebar() {
               </li>
               <li>
                 <Link
-                  onClick={() => setActive(true)}
+                  onClick={() => handleAvailableJobs("Full Time")}
                   to="/"
                   className="sub-menu"
                   id="lws-fulltime-menu"
@@ -50,7 +61,7 @@ export default function Sidebar() {
               </li>
               <li>
                 <Link
-                  onClick={() => setActive(true)}
+                  onClick={() => handleAvailableJobs("Remote")}
                   to="/"
                   className="sub-menu"
                   id="lws-remote-menu"

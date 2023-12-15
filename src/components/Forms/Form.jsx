@@ -1,23 +1,31 @@
-import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { createJob } from "../../features/jobs/jobsSlice";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  createJob,
+  removeFromEditing,
+  updateJob,
+} from "../../features/jobs/jobsSlice";
+import { useNavigate } from "react-router-dom";
 
 export default function Form() {
   const [title, setTitle] = useState("");
   const [type, setType] = useState("");
-  const [salary, setSalary] = useState(null);
+  const [salary, setSalary] = useState("");
   const [deadline, setDeadline] = useState("");
 
   const dispatch = useDispatch();
+  const { editing } = useSelector((state) => state.jobs);
+
+  const navigate = useNavigate();
 
   const reset = () => {
     setDeadline("");
-    setSalary(null);
+    setSalary("");
     setTitle("");
     setType("");
   };
 
-  const handleSubmit = (e) => {
+  const handleAddSubmit = (e) => {
     e.preventDefault();
     const data = {
       title,
@@ -25,14 +33,37 @@ export default function Form() {
       salary,
       deadline,
     };
-    // console.log(data);
 
     dispatch(createJob(data));
     reset();
+    navigate("/");
+  };
+
+  useEffect(() => {
+    const { title, type, salary, deadline } = editing;
+    if (editing?.id) {
+      setDeadline(deadline);
+      setSalary(salary);
+      setTitle(title);
+      setType(type);
+    }
+  }, [editing]);
+
+  const handleEditSubmit = (e) => {
+    e.preventDefault();
+    const id = editing?.id;
+    const data = { title, type, salary, deadline };
+    dispatch(updateJob({ id, data }));
+    dispatch(removeFromEditing());
+    reset();
+    navigate("/");
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form
+      onSubmit={editing?.id ? handleEditSubmit : handleAddSubmit}
+      className="space-y-6"
+    >
       <div className="fieldContainer">
         <label
           htmlFor="lws-JobTitle"
@@ -41,6 +72,7 @@ export default function Form() {
           Job Title
         </label>
         <select
+          value={title}
           onChange={(e) => setTitle(e.target.value)}
           id="lws-JobTitle"
           name="lwsJobTitle"
@@ -68,6 +100,7 @@ export default function Form() {
       <div className="fieldContainer">
         <label htmlFor="lws-JobType">Job Type</label>
         <select
+          value={type}
           onChange={(e) => setType(e.target.value)}
           id="lws-JobType"
           name="lwsJobType"
@@ -86,6 +119,7 @@ export default function Form() {
         <div className="flex border rounded-md shadow-sm border-slate-600">
           <span className="input-tag">BDT</span>
           <input
+            value={salary}
             onChange={(e) => setSalary(e.target.value)}
             type="number"
             name="lwsJobSalary"
@@ -99,6 +133,7 @@ export default function Form() {
       <div className="fieldContainer">
         <label htmlFor="lws-JobDeadline">Deadline</label>
         <input
+          value={deadline}
           onChange={(e) => setDeadline(e.target.value)}
           type="date"
           name="lwsJobDeadline"
@@ -112,7 +147,7 @@ export default function Form() {
           id="lws-submit"
           className="cursor-pointer btn btn-primary w-fit"
         >
-          Add
+          {editing?.id ? "Edit" : "Add"}
         </button>
       </div>
     </form>
